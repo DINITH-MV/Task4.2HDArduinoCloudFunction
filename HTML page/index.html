@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LED Control with Firebase</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 350px;
+        margin: auto;
+        padding: 20px; /* Added padding back */
+        text-align: center;
+      }
+      .led-control {
+        margin: 20px 0;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+      label {
+        display: flex;
+        align-items: center;
+        justify-content: left;
+        gap: 10px;
+        font-size: 18px;
+      }
+      input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+      }
+      .container {
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        padding: 10px 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        align-items: center;
+        margin: 120px auto;
+      }
+      .container-box {
+        background-color: #fff;
+        border-radius: 8px;
+        padding: 5px 20px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        font-size: 24px;
+        margin-bottom: 20px;
+      }
+      h2 {
+        color: #333;
+        margin-bottom: 20px;
+      }
+      .led-control {
+        background-color: #e0e0e0; /* Added background color for better visibility */
+        border-radius: 5px; /* Added border radius */
+        padding: 10px; /* Added padding */
+      }
+
+    .box-inside {
+        display: flex; 
+        flex-direction: column; 
+        gap: 10px; 
+        text-align: left;
+        margin: 0 auto; 
+        padding: 10px; 
+        width: 53%;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="container-box">
+        <h2>LED Toggle Control</h2>
+        <div class="led-control">
+          <div class="box-inside">
+            <label> <input type="checkbox" id="red_led" /> LED RED </label>
+            <label> <input type="checkbox" id="red_green" /> LED GREEN </label>
+            <label> <input type="checkbox" id="red_blue" /> LED BLUE </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+    import {
+      getDatabase,
+      ref,
+      set,
+      onValue,
+    } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
+
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyCXagArUxoo3OQqTuxU7v4_7CP0oxB-NVI",
+      authDomain: "traffic-light-system-3096d.firebaseapp.com",
+      databaseURL:
+        "https://traffic-light-system-3096d-default-rtdb.firebaseio.com",
+      projectId: "traffic-light-system-3096d",
+      storageBucket: "traffic-light-system-3096d.appspot.com",
+      messagingSenderId: "616476032426",
+      appId: "1:616476032426:web:5afa1cd5a92e7854803fd3",
+      measurementId: "G-JVQESC8M1Q",
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+
+    const red_led = document.getElementById("red_led");
+    const green_led = document.getElementById("red_green");
+    const blue_led = document.getElementById("red_blue");
+
+    function setupCheckbox(checkbox, ledId) {
+      checkbox.addEventListener("change", () => {
+        const state = checkbox.checked ? "on" : "off";
+        const ledRef = ref(database, "/" + ledId);
+
+        set(ledRef, state)
+          .then(() => console.log(`${ledId} set to ${state}`))
+          .catch((error) => {
+            console.error("Error writing to Firebase:", error);
+            checkbox.checked = !checkbox.checked; // Revert UI on error
+          });
+      });
+    }
+
+    setupCheckbox(red_led, "LED_RED");
+    setupCheckbox(red_green, "LED_GREEN");
+    setupCheckbox(red_blue, "LED_BLUE");
+
+    const ledsRef = ref(database, "leds");
+    onValue(
+      ledsRef,
+      (snapshot) => {
+        const leds = snapshot.val();
+        if (leds) {
+          console.log("Data received from Firebase:", leds);
+          red_led.checked = leds.LED_RED === "on";
+          red_green.checked = leds.LED_GREEN === "on";
+          red_blue.checked = leds.LED_BLUE === "on";
+        }
+      },
+      (error) => {
+        console.error("Firebase read failed:", error);
+      }
+    );
+  </script>
+</html>

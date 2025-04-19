@@ -3,9 +3,9 @@
 #include "Firebase_Arduino_WiFiNINA.h"
 #include "secrets.h"
 
-#define RED_LED 7
-#define GREEN_LED 8
-#define BLUE_LED 9
+#define RED_LED 6
+#define GREEN_LED 7
+#define BLUE_LED 8
 
 String getPathLED_RED = "/LED_RED";
 String getPathLED_GREEN = "/LED_GREEN";
